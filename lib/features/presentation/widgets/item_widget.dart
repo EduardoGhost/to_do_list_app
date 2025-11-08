@@ -15,40 +15,37 @@ class ItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListTile(
-          leading: Checkbox(
-            value: todo.isDone,
-            onChanged: (_) => onToggle(),
-            checkColor: Colors.white,
-            activeColor: const Color(0xFF1565C0),
-          ),
-          title: Text(
-            todo.title,
-            style: TextStyle(
-              fontSize: 16,
-              decoration: todo.isDone
-                  ? TextDecoration.lineThrough
-                  : TextDecoration.none,
-              color: todo.isDone ? Colors.grey : Colors.black87,
+    return AnimatedOpacity(
+      opacity: todo.isDone ? 0.6 : 1.0,
+      duration: const Duration(milliseconds: 300),
+      child: Column(
+        children: [
+          ListTile(
+            leading: Checkbox(
+              value: todo.isDone,
+              onChanged: (_) => onToggle(),
+              checkColor: Colors.white,
+              activeColor: const Color(0xFF1565C0),
+            ),
+            title: Text(
+              todo.title,
+              style: TextStyle(
+                decoration: todo.isDone
+                    ? TextDecoration.lineThrough
+                    : TextDecoration.none,
+              ),
+            ),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: onDelete,
             ),
           ),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete, color: Colors.redAccent),
-            onPressed: onDelete,
+          const Padding(
+            padding: EdgeInsets.only(left: 60),
+            child: Divider(thickness: 1, height: 1),
           ),
-        ),
-        const Padding(
-          padding: EdgeInsets.only(left: 60),
-          child: Divider(
-            height: 1,
-            thickness: 0.8,
-            color: Colors.grey,
-            endIndent: 16,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
