@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/todo_filter.dart';
 import '../bloc/todo_bloc.dart';
+import '../widgets/todo_app_bar.dart';
+import '../widgets/filter_bar.dart';
+import '../widgets/empty_widget.dart';
+import '../widgets/item_widget.dart';
 
 class TodoPage extends StatelessWidget {
   const TodoPage({super.key});
@@ -9,92 +13,81 @@ class TodoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Minha Lista de Tarefas')),
+      appBar: const TodoAppBar(title: 'To do List'),
       body: BlocBuilder<TodoBloc, TodoState>(
         builder: (context, state) {
-          final filteredTodos =
-          context.read<TodoBloc>().applyFilter(state.todos, state.filter);
+          final bloc = context.read<TodoBloc>();
+          final filteredTodos = bloc.applyFilter(state.todos, state.filter);
 
           return Column(
             children: [
-              // --- bar ---
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    FilterChip(
-                      label: const Text('All'),
-                      selected: state.filter == TodoFilter.all,
-                      onSelected: (_) => context
-                          .read<TodoBloc>()
-                          .add(ChangeFilterEvent(TodoFilter.all)),
-                    ),
-                    FilterChip(
-                      label: const Text('Pending'),
-                      selected: state.filter == TodoFilter.pending,
-                      onSelected: (_) => context
-                          .read<TodoBloc>()
-                          .add(ChangeFilterEvent(TodoFilter.pending)),
-                    ),
-                    FilterChip(
-                      label: const Text('Done'),
-                      selected: state.filter == TodoFilter.done,
-                      onSelected: (_) => context
-                          .read<TodoBloc>()
-                          .add(ChangeFilterEvent(TodoFilter.done)),
-                    ),
-                  ],
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: FilterBar(
+                  filter: state.filter,
+                  onFilterChanged: (filter) =>
+                      bloc.add(ChangeFilterEvent(filter)),
                 ),
               ),
 
-              // --- Lista de tarefas ---
-              if (state.isLoading)
-                const Expanded(
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else if (filteredTodos.isEmpty)
-                const Expanded(
-                  child: Center(child: Text('Nenhuma tarefa.')),
-                )
-              else
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: filteredTodos.length,
-                    itemBuilder: (context, index) {
-                      final todo = filteredTodos[index];
-                      return ListTile(
-                        leading: Checkbox(
-                          value: todo.isDone,
-                          onChanged: (_) {
-                            context.read<TodoBloc>().add(
-                              ToggleTodoStatusEvent(todo),
-                            );
-                          },
-                        ),
-                        title: Text(
-                          todo.title,
-                          style: TextStyle(
-                            decoration: todo.isDone
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
-                          ),
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => context
-                              .read<TodoBloc>()
-                              .add(DeleteTodoEvent(todo.id)),
+              Expanded(
+                child: Builder(
+                  builder: (context) {
+                    if (state.isLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    if (state.errorMessage != null) {
+                      return Center(
+                        child: Text(
+                          state.errorMessage!,
+                          style: const TextStyle(color: Colors.red),
                         ),
                       );
-                    },
-                  ),
+                    }
+
+                    if (filteredTodos.isEmpty) {
+                      String message;
+                      switch (state.filter) {
+                        case TodoFilter.pending:
+                          message = 'Você não tem tarefas pendentes!';
+                          break;
+                        case TodoFilter.done:
+                          message = 'Nenhuma tarefa concluída ainda.';
+                          break;
+                        default:
+                          message = 'Nenhuma tarefa por aqui!';
+                      }
+
+                      return EmptyWidget(message: message);
+                    }
+
+                    return ListView.builder(
+                      itemCount: filteredTodos.length,
+                      itemBuilder: (context, index) {
+                        final todo = filteredTodos[index];
+                        return ItemWidget(
+                          todo: todo,
+                          onToggle: () =>
+                              bloc.add(ToggleTodoStatusEvent(todo)),
+                          onDelete: () => bloc.add(DeleteTodoEvent(todo.id)),
+                        );
+                      },
+                    );
+                  },
                 ),
+              ),
             ],
           );
         },
       ),
+
       floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF012456),
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.add, size: 28),
         onPressed: () async {
           final controller = TextEditingController();
           final result = await showDialog<String>(
@@ -103,7 +96,8 @@ class TodoPage extends StatelessWidget {
               title: const Text('Nova Tarefa'),
               content: TextField(
                 controller: controller,
-                decoration: const InputDecoration(hintText: 'Digite o nome da tarefa'),
+                decoration:
+                const InputDecoration(hintText: 'Digite o nome da tarefa'),
               ),
               actions: [
                 TextButton(
@@ -111,6 +105,10 @@ class TodoPage extends StatelessWidget {
                   child: const Text('Cancelar'),
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF012456),
+                    foregroundColor: Colors.white,
+                  ),
                   onPressed: () => Navigator.pop(context, controller.text),
                   child: const Text('Adicionar'),
                 ),
@@ -122,12 +120,7 @@ class TodoPage extends StatelessWidget {
             context.read<TodoBloc>().add(AddTodoEvent(result));
           }
         },
-        child: const Icon(Icons.add),
       ),
     );
   }
 }
-
-
-
-
