@@ -14,6 +14,7 @@ class TodoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const TodoAppBar(title: 'To do List'),
+      backgroundColor: const Color(0xFFEFF7F6),
       body: BlocBuilder<TodoBloc, TodoState>(
         builder: (context, state) {
           final bloc = context.read<TodoBloc>();
