@@ -1,16 +1,35 @@
-# to_de_list_app
+# Todo App
 
-A new Flutter project.
+Aplicativo que trata-se basicamente de uma lista de tarefas desenvolvido em **Flutter**, com foco em **boas práticas de arquitetura**, **organização de código** e **gerenciamento de estado reativo**.  
+O objetivo é demonstrar como aplicar **Clean Architecture** com **BLoC**, **injeção de dependências com GetIt** e **armazenamento local com SharedPreferences**.
 
-## Getting Started
+--------------------------------
 
-This project is a starting point for a Flutter application.
+# Funcionalidades
 
-A few resources to get you started if this is your first Flutter project:
+- Criar, editar e excluir tarefas
+- Marcar tarefas como concluídas
+- Filtrar tarefas por status (todas, pendentes, concluídas)
+- Persistência local das tarefas
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+--------------------------------
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# Arquitetura
+
+O projeto segue o padrão **Clean Architecture**, dividindo o código em **camadas bem definidas**:
+
+--------------------------------
+
+# Como executar o projeto
+
+1. Clone este repositório:
+   git clone https://github.com/EduardoGhost/to_do_list_app.git
+   
+2. Entre na pasta do projeto:
+   cd to_do_list_app
+
+3. Instale as dependências:
+   flutter pub get
+
+4. Execute o app:
+   flutter run
